@@ -1,8 +1,6 @@
 import * as React from 'react'
 import styled from 'styled-components'
-
-//useState関数をReactから取り出す
-const {useState} = React
+import {useStateWithStorage} from "../hooks/use_state_with_storage";
 
 const Header = styled.header`
   font-size: 1.5rem;
@@ -46,11 +44,17 @@ const Preview = styled.div`
   width: 50vw;
 `
 
+//保存時のキー名を設定
+const StorageKey = 'pages/editor:text'
+
 //Editor＝React.FC型（関数コンポーネントの略）→Reactのコンポーネントを返す
 //React.FCで定義された関数は、JSXで<Editor>という形式で呼び出すことができる
 export const Editor:React.FC = () => {
     //状態を管理する処理
-    const [text, setText] = useState<string>('')
+    //useStateの初期値にlocalStorageから取得した値を設定
+    //nullが入る可能性があるので||''で必ず文字列が入るようにする
+    //const [text, setText] = useState<string>(localStorage.getItem(StorageKey) || '')
+    const [text, setText] = useStateWithStorage('', StorageKey)
     return(
         //<>のタグ＝<React.Fragment>を短縮した書き方→Reactコンポーネントでは1つの要素を返却しなければならないから
         <>
@@ -60,12 +64,16 @@ export const Editor:React.FC = () => {
             <Wrapper>
                 {/*textareaの各属性に状態に関する処理を書く*/}
                 {/*属性：onChange＝テキストの内容が変更されたときに実行される関数を渡す、引数としてeventが渡される*/}
-                {/*event.target.valueにテキストの内容が格納されている*/}
+                {/*変数：changedText＝event.target.valueにテキストの内容が格納されている、その値*/}
+                {/*onChange=テキストが変更されるたびにlocalStorageに保存する、最後に入力された状態をlocalStorageに保存する*/}
                 {/*属性:valueにはテキストの内容を渡す、ここではuseStateで管理しているtextという変数を返す*/}
                 <TextArea
-                    onChange = {(event) => {
-                        setText(event.target.value)
-                    }}
+                    // onChange = {(event) => {
+                    //     const changedText = event.target.value
+                    //     localStorage.setItem(StorageKey,changedText)
+                    //     setText(changedText)
+                    // }}
+                    onChange={(event) => setText(event.target.value)}
                     value = {text}
                 />
                 <Preview>プレビューエリア</Preview>
